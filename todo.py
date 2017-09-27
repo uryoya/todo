@@ -57,7 +57,7 @@ class Command():
             return func
         return decorator
 
-    def add_command(self, command, func, options=[]):
+    def add_command(self, command, func, **options):
         self.commands[command] = (func, options)
 
     def command(self, command, **options):
@@ -88,7 +88,9 @@ class Command():
             try:
                 func, options = self.commands[command]
                 if options:
-                    result = func(**options)
+                    # @app.command('command', args=[]) のargsで決めた引数だけ取り込む
+                    # もう少し作り込めそうだけどとりあえずこれだけ
+                    result = func(*args[:len(options)])
                 else:
                     result = func()
                 print(result)
@@ -117,9 +119,9 @@ def list():
 def show():
     return 'not implement'
 
-@app.command('add')
-def add():
-    return 'not implement'
+@app.command('add', args=['title'])
+def add(title):
+    return title
 
 @app.command('edit')
 def edit():
