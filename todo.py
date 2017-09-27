@@ -128,7 +128,7 @@ Create: %s\tLast Update: %s
 %s
 ================================================================================
 '''
-    return ''.join(template % (task[0], task[1], task[2], task[3])
+    return ''.join(template % (task[0], task[1], task[2], task[3].rstrip())
                    for task in tasks)
 
 @app.command('add', args=['title'])
