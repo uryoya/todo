@@ -5,6 +5,7 @@ import sqlite3
 import subprocess
 import sys
 import tempfile
+import os
 
 from pathlib import Path
 
@@ -107,6 +108,7 @@ con = sqlite3.connect(DATABASE)
 cur = con.cursor()
 app = Command()
 app.welcome_message = 'Welcome to Japari Park!'
+tempfiles = dict()
 
 
 @app.command('list')
@@ -122,8 +124,19 @@ def show():
 @app.command('add', args=['title'])
 def add(title):
     now = datetime.datetime.now()
+    with tempfile.NamedTemporaryFile(suffix='.md', delete=False) as tf:
+        tf.write(('# %s\n' % title).encode())
+        tf_path = tf.name
+    cp = subprocess.run(['editor', tf_path])
+    if cp.returncode == 0:
+        with open(tf_path) as f:
+            description = f.read()
+    else:
+        description = ''
     cur.execute('INSERT INTO tasks(title, description, create_at, update_at, done) VALUES (?, ?, ?, ?, ?);',
-                (title, '', now, now, False))
+                (title, description, now, now, False))
+    row_id = cur.execute('select last_insert_rowid();').fetchone()[0]
+    tempfiles[row_id] = tf_path # tempfileをキャッシュ
     return 'add: %s' % title
 
 @app.command('edit')
@@ -138,6 +151,9 @@ def done():
 def clean_up():
     con.commit()
     con.close()
+
+    for path in tempfiles.values():
+        os.unlink(path)
 
 def main():
     todo_file = Path('./todo.json').absolute()
