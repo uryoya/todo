@@ -178,9 +178,19 @@ def edit(task_id):
         return 'update: %s' % title
     return 'update failed'
 
-@app.command('done')
-def done():
-    return 'not implement'
+@app.command('done', args=['task_id'])
+def done(task_id):
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return '%s is not found.' % task_id
+    cur.execute('SELECT task_id, title FROM tasks WHERE task_id = (?);', (task_id,))
+    task, title = cur.fetchone()
+    if not task:
+        return '%s is not found.'
+
+    cur.execute('UPDATE tasks SET done=? WHERE task_id=?;', (True, task_id))
+    return 'done: %s' % title
 
 @app.set_clean_up()
 def clean_up():
