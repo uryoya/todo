@@ -1,10 +1,11 @@
 """ToDo application for CLI."""
 import datetime
+import os
+import platform
 import sqlite3
 import subprocess
 import sys
 import tempfile
-import os
 
 
 DATABASE = '_todo.sqlite3'
@@ -18,6 +19,14 @@ create table tasks (
     done        INTEGER
 )
 """
+if 'EDITOR' in os.environ:
+    EDITOR_APP = os.environ['EDITOR']
+elif platform.system() == 'Linux':
+    EDITOR_APP = 'vim'
+elif platform.system() == 'Mac':
+    EDITOR_APP = 'open'
+elif platform.system() == 'Windows':
+    EDITOR_APP = 'notepad.exe'
 
 
 class Task:
@@ -144,7 +153,7 @@ def add(title):
     with tempfile.NamedTemporaryFile(suffix='.md', delete=False) as tf:
         tf.write(('# %s\n' % title).encode())
         tf_path = tf.name
-    cp = subprocess.run(['editor', tf_path])
+    cp = subprocess.run([EDITOR_APP, tf_path])
     if cp.returncode == 0:
         with open(tf_path) as f:
             description = f.read()
@@ -174,7 +183,7 @@ def edit(task_id):
             else:
                 tf.write(('# %s\n' % task[1]).encode()) # title
             tempfile_path = tf.name
-    cp = subprocess.run(['editor', tempfile_path])
+    cp = subprocess.run([EDITOR_APP, tempfile_path])
     if cp.returncode == 0:
         with open(tempfile_path) as tf:
             description = tf.read()
