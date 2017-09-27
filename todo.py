@@ -11,12 +11,12 @@ from pathlib import Path
 DATABASE = '_todo.sqlite3'
 TABLES = """
 create table tasks (
-    task_id     INT PRIMARY KEY,
+    task_id     INTEGER PRIMARY KEY AUTOINCREMENT,
     title       VARCHAR(100),
     description TEXT,
     create_at   TIMESTAMP,
     update_at   TIMESTAMP,
-    done        BOOL
+    done        INTEGER
 )
 """
 
@@ -121,7 +121,10 @@ def show():
 
 @app.command('add', args=['title'])
 def add(title):
-    return title
+    now = datetime.datetime.now()
+    cur.execute('INSERT INTO tasks(title, description, create_at, update_at, done) VALUES (?, ?, ?, ?, ?);',
+                (title, '', now, now, False))
+    return 'add: %s' % title
 
 @app.command('edit')
 def edit():
