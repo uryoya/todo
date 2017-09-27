@@ -77,7 +77,16 @@ class Command():
         return decorator
 
     def help(self):
-        return 'help!'
+        _help = 'HELP: command\t[options...]\n\n'
+        for command, (_, options) in self.commands.items(): # これだとdictだから毎回表示順が変わってしまう...
+            if options:
+                _help += '%s\t%s\n' % (
+                    command,
+                    ' '.join('[%s]' % arg for arg in options['args'])
+                )
+            else:
+                _help += '%s\n' % command
+        return _help
     
     def run(self):
         self.start_up()
