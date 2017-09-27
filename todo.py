@@ -1,13 +1,11 @@
 """ToDo application for CLI."""
 import datetime
-import json
 import sqlite3
 import subprocess
 import sys
 import tempfile
 import os
 
-from pathlib import Path
 
 DATABASE = '_todo.sqlite3'
 TABLES = """
