@@ -113,8 +113,7 @@ tempfiles = dict()
 
 @app.command('list')
 def list():
-    cur.execute('SELECT title FROM `tasks`;')
-    tasks = cur.fetchall()
+    tasks = cur.execute('SELECT title FROM tasks WHERE done = 0;').fetchall()
     return '\n'.join(['%d\t%s' % (idx+1, task[0]) for idx, task in enumerate(tasks)])
 
 @app.command('show')
