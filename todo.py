@@ -149,9 +149,34 @@ def add(title):
     tempfiles[row_id] = tf_path # tempfileをキャッシュ
     return 'add: %s' % title
 
-@app.command('edit')
-def edit():
-    return 'not implement'
+@app.command('edit', args=['task_id'])
+def edit(task_id):
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return '%s is not found.' % task_id
+    cur.execute('SELECT task_id, title, description FROM tasks WHERE task_id = (?);', (task_id,))
+    task = cur.fetchone()
+    if not task:
+        return '%s is not found.'
+
+    if task[0] not in tempfiles: # task_id not in tempfiles
+        with tempfile.NamedTemporaryFile(suffix='.md', delete=False) as tf:
+            if task[2]: # description
+                tf.write(task[2].encode())
+            else:
+                tf.write(('# %s\n' % task[1]).encode()) # title
+            tempfile_path = tf.name
+    cp = subprocess.run(['editor', tempfile_path])
+    if cp.returncode == 0:
+        with open(tempfile_path) as tf:
+            description = tf.read()
+            title = description.split('\n')[0].split(' ')[1]
+        cur.execute('UPDATE tasks SET title=?, description=?, update_at=? WHERE task_id=?;',
+                    (title, description, datetime.datetime.now(), task[0]))
+        tempfiles[task[0]] = tempfile_path
+        return 'update: %s' % title
+    return 'update failed'
 
 @app.command('done')
 def done():
