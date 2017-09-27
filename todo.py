@@ -11,7 +11,7 @@ DATABASE = '_todo.sqlite3'
 TABLES = """
 create table tasks (
     task_id     INTEGER PRIMARY KEY AUTOINCREMENT,
-    title       VARCHAR(100),
+    title       TEXT,
     description TEXT,
     create_at   TIMESTAMP,
     update_at   TIMESTAMP,
