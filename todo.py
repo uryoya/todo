@@ -113,7 +113,7 @@ app.welcome_message = 'Welcome to Japari Park!'
 def list():
     cur.execute('SELECT title FROM `tasks`;')
     tasks = cur.fetchall()
-    return '\n'.join(['%d\t%s' % (idx, task) for idx, task in enumerate(tasks)])
+    return '\n'.join(['%d\t%s' % (idx+1, task[0]) for idx, task in enumerate(tasks)])
 
 @app.command('show')
 def show():
