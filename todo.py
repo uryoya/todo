@@ -119,7 +119,18 @@ def list():
 
 @app.command('show')
 def show():
-    return 'not implement'
+    tasks = cur.execute('''SELECT title, create_at, update_at, description
+                        FROM tasks
+                        WHERE done = 0;''').fetchall()
+    template = '''================================================================================
+Title: %s
+Create: %s\tLast Update: %s
+--------------------------------------------------------------------------------
+%s
+================================================================================
+'''
+    return ''.join(template % (task[0], task[1], task[2], task[3])
+                   for task in tasks)
 
 @app.command('add', args=['title'])
 def add(title):
