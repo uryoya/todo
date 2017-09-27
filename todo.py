@@ -177,7 +177,9 @@ def edit(task_id):
     if not task:
         return '%s is not found.'
 
-    if task[0] not in tempfiles: # task_id not in tempfiles
+    if task[0] in tempfiles: # task_id in tempfiles
+        tempfile_path = tempfiles[task[0]]
+    else:
         with tempfile.NamedTemporaryFile(suffix='.md', delete=False) as tf:
             if task[2]: # description
                 tf.write(task[2].encode())
