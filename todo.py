@@ -84,7 +84,7 @@ class Command():
         else:
             self.help += '%s' % command
         if 'help' in options:
-            self.help += options['help'] + '\n'
+            self.help += '\t' + options['help'] + '\n'
         else:
             self.help += '\n'
 
@@ -135,13 +135,13 @@ app.welcome_message = 'Welcome to Japari Park!'
 tempfiles = dict()
 
 
-@app.command('list')
+@app.command('list', help='show tasks (title only)')
 def list():
     tasks = cur.execute('SELECT task_id, title FROM tasks WHERE done = 0;').fetchall()
     return 'task id\ttitle\n' + \
            '\n'.join(['%d\t%s' % (idx, title) for idx, title in tasks])
 
-@app.command('show')
+@app.command('show', help='show tasks (all info)')
 def show():
     tasks = cur.execute('''SELECT title, task_id, create_at, update_at, description
                         FROM tasks
@@ -156,7 +156,7 @@ Create: %s\tLast Update: %s
     return ''.join(template % (task[0], task[1], task[2], task[3], task[4].rstrip())
                    for task in tasks)
 
-@app.command('add', args=['title'])
+@app.command('add', args=['title'], help='add task')
 def add(title):
     now = datetime.datetime.now()
     with tempfile.NamedTemporaryFile(suffix='.md', delete=False) as tf:
@@ -174,7 +174,7 @@ def add(title):
     tempfiles[row_id] = tf_path # tempfileをキャッシュ
     return 'add: %s' % title
 
-@app.command('edit', args=['task_id'])
+@app.command('edit', args=['task_id'], help='edit task')
 def edit(task_id):
     try:
         task_id = int(task_id)
