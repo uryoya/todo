@@ -52,7 +52,9 @@ class Command():
         self.start_up = Command._start_up_stab
         self.clean_up = Command._clean_up_stub
         self.welcome_message = ''
-        self.help = 'HELP: command\t[options...]\tDESCRIPTION\n\n'
+        self.help = 'HELP: command\t[options...]\tDESCRIPTION\n\n' + \
+                    'help\t\t\tshow this message\n' + \
+                    'quit\t\t\tquit todo\n'
 
     @staticmethod
     def _start_up_stab():
