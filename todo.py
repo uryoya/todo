@@ -52,9 +52,9 @@ class Command():
         self.start_up = Command._start_up_stab
         self.clean_up = Command._clean_up_stub
         self.welcome_message = ''
-        self.help = 'HELP: command\t[options...]\tDESCRIPTION\n\n' + \
-                    'help\t\t\tshow this message\n' + \
-                    'quit\t\t\tquit todo\n'
+        self.help = 'HELP: command  [options...]         DESCRIPTION\n\n' + \
+                    'help                                show this message\n' + \
+                    'quit                                quit todo\n'
 
     @staticmethod
     def _start_up_stab():
@@ -79,14 +79,14 @@ class Command():
     def add_command(self, command, func, **options):
         self.commands[command] = (func, options)
         if 'args' in options:
-            self.help += '%s\t%s' % (
+            self.help += '{:<15}{:<21}'.format(
                 command,
                 ' '.join('[%s]' % arg for arg in options['args'])
             )
         else:
-            self.help += '%s' % command
+            self.help += '{:<15}                     '.format(command)
         if 'help' in options:
-            self.help += '\t' + options['help'] + '\n'
+            self.help += options['help'] + '\n'
         else:
             self.help += '\n'
 
