@@ -52,6 +52,7 @@ class Command():
         self.start_up = Command._start_up_stab
         self.clean_up = Command._clean_up_stub
         self.welcome_message = ''
+        self.help = 'HELP: command\t[options...]\tDESCRIPTION\n\n'
 
     @staticmethod
     def _start_up_stab():
@@ -75,6 +76,17 @@ class Command():
 
     def add_command(self, command, func, **options):
         self.commands[command] = (func, options)
+        if 'args' in options:
+            self.help += '%s\t%s' % (
+                command,
+                ' '.join('[%s]' % arg for arg in options['args'])
+            )
+        else:
+            self.help += '%s' % command
+        if 'help' in options:
+            self.help += options['help'] + '\n'
+        else:
+            self.help += '\n'
 
     def command(self, command, **options):
         """Decorator for implement ToDo commands.
@@ -91,18 +103,6 @@ class Command():
             return func
         return decorator
 
-    def help(self):
-        _help = 'HELP: command\t[options...]\n\n'
-        for command, (_, options) in self.commands.items(): # これだとdictだから毎回表示順が変わってしまう...
-            if options:
-                _help += '%s\t%s\n' % (
-                    command,
-                    ' '.join('[%s]' % arg for arg in options['args'])
-                )
-            else:
-                _help += '%s\n' % command
-        return _help
-    
     def run(self):
         self.start_up()
         if self.welcome_message:
@@ -122,7 +122,7 @@ class Command():
             except KeyError:
                 if command == 'quit':
                     break
-                print(self.help()) # include command:'help'
+                print(self.help) # include command:'help'
 
         self.clean_up()
         print('Bye!')
