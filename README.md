@@ -25,7 +25,16 @@ Welcome to Japari Park!
 Bye!
 ```
 
+## エディタの設定
+タスクの編集に使われるエディタは、デフォルトでは環境変数`$EDITOR`を見ます。
+それが存在しない場合は、Linuxはvim、Macはopen、Winはnotepad.exeを起動します。
+お気に入りのエディタを使いたい場合は、`config`に以下を書き込みます:
+```
+[default]
+editor = /path/to/editor
+```
+
 ## 現状の問題点
-- listで表示される番号と`task_id`が一致してない
-- helpが色々足りない
+- [x] listで表示される番号と`task_id`が一致してない
+- [ ] helpが色々足りない
 

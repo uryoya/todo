@@ -1,4 +1,5 @@
 """ToDo application for CLI."""
+import configparser
 import datetime
 import os
 import platform
@@ -19,14 +20,21 @@ create table tasks (
     done        INTEGER
 )
 """
-if 'EDITOR' in os.environ:
-    EDITOR_APP = os.environ['EDITOR']
-elif platform.system() == 'Linux':
-    EDITOR_APP = 'vim'
-elif platform.system() == 'Mac':
-    EDITOR_APP = 'open'
-elif platform.system() == 'Windows':
-    EDITOR_APP = 'notepad.exe'
+
+EDITOR_APP = ''
+if os.path.exists('config'):
+    config = configparser.ConfigParser()
+    config.read('config')
+    EDITOR_APP = config['default']['editor']
+else:
+    if 'EDITOR' in os.environ:
+        EDITOR_APP = os.environ['EDITOR']
+    elif platform.system() == 'Linux':
+        EDITOR_APP = 'vim'
+    elif platform.system() == 'Mac':
+        EDITOR_APP = 'open'
+    elif platform.system() == 'Windows':
+        EDITOR_APP = 'notepad.exe'
 
 
 class Task:
