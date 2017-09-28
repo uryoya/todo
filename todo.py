@@ -124,7 +124,10 @@ class Command():
             except KeyError:
                 if command == 'quit':
                     break
-                print(self.help) # include command:'help'
+                if command == 'help':
+                    print(self.help) # include command:'help'
+                else:
+                    print('see: > help')
 
         self.clean_up()
         print('Bye!')
