@@ -171,6 +171,7 @@ def add(title):
     if cp.returncode == 0:
         with open(tf_path) as f:
             description = f.read()
+            title = description.split('\n')[0].split(' ')[1]
     else:
         description = ''
     cur.execute('INSERT INTO tasks(title, description, create_at, update_at, done) VALUES (?, ?, ?, ?, ?);',
