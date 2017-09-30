@@ -39,7 +39,8 @@ else:
 
 
 class Task:
-    def __init__(self, title, description, create_at, update_at, done):
+    def __init__(self, task_id, title, description, create_at, update_at, done):
+        self.task_id = task_id
         self.title = title
         self.description = description
         self.create_at = create_at
@@ -62,9 +63,8 @@ def list():
 
 @app.command('show', help='show tasks (all info)')
 def show():
-    tasks = cur.execute('''SELECT title, task_id, create_at, update_at, description
-                        FROM tasks
-                        WHERE done = 0;''').fetchall()
+    query = 'SELECT * FROM tasks WHERE done = 0;'
+    tasks = [Task(*task) for task in cur.execute(query).fetchall()]
     template = '''================================================================================
 Title: %s [Task ID:%d]
 Create: %s\tLast Update: %s
@@ -72,8 +72,11 @@ Create: %s\tLast Update: %s
 %s
 ================================================================================
 '''
-    return ''.join(template % (task[0], task[1], task[2], task[3], task[4].rstrip())
-                   for task in tasks)
+    return ''.join(
+        template % (
+            task.title, task.task_id, task.create_at, task.update_at, task.description
+        ) for task in tasks
+    )
 
 @app.command('add', args=['title'], help='add task')
 def add(title):
