@@ -34,7 +34,3 @@ Bye!
 editor = /path/to/editor
 ```
 
-## 現状の問題点
-- [x] listで表示される番号と`task_id`が一致してない
-- [x] helpが色々足りない
-
