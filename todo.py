@@ -57,7 +57,8 @@ tempfiles = dict()
 
 @app.command('list', help='show tasks (title only)')
 def list():
-    tasks = cur.execute('SELECT task_id, title FROM tasks WHERE done = 0;').fetchall()
+    query = 'SELECT task_id, title FROM tasks WHERE done = 0;'
+    tasks = cur.execute(query).fetchall()
     return 'task id\ttitle\n' + \
            '\n'.join(['%d\t%s' % (idx, title) for idx, title in tasks])
 
@@ -91,8 +92,8 @@ def add(title):
             title = description.split('\n')[0].split(' ')[1]
     else:
         description = ''
-    cur.execute('INSERT INTO tasks(title, description, create_at, update_at, done) VALUES (?, ?, ?, ?, ?);',
-                (title, description, now, now, False))
+    query = 'INSERT INTO tasks(title, description, create_at, update_at, done) VALUES (?, ?, ?, ?, ?);'
+    cur.execute(query, (title, description, now, now, False))
     row_id = cur.execute('select last_insert_rowid();').fetchone()[0]
     tempfiles[row_id] = tf_path # tempfileをキャッシュ
     return 'add: %s' % title
@@ -103,8 +104,8 @@ def edit(task_id):
         task_id = int(task_id)
     except ValueError:
         return '%s is not found.' % task_id
-    cur.execute('SELECT task_id, title, description FROM tasks WHERE task_id = (?);', (task_id,))
-    task = cur.fetchone()
+    query = 'SELECT task_id, title, description FROM tasks WHERE task_id = (?);'
+    task = cur.execute(query, (task_id,)).fetchone()
     if not task:
         return '%s is not found.'
 
@@ -122,8 +123,8 @@ def edit(task_id):
         with open(tempfile_path) as tf:
             description = tf.read()
             title = description.split('\n')[0].split(' ')[1]
-        cur.execute('UPDATE tasks SET title=?, description=?, update_at=? WHERE task_id=?;',
-                    (title, description, datetime.datetime.now(), task[0]))
+        query = 'UPDATE tasks SET title=?, description=?, update_at=? WHERE task_id=?;'
+        cur.execute(query, (title, description, datetime.datetime.now(), task[0]))
         tempfiles[task[0]] = tempfile_path
         return 'update: %s' % title
     return 'update failed'
@@ -134,8 +135,8 @@ def done(task_id):
         task_id = int(task_id)
     except ValueError:
         return '%s is not found.' % task_id
-    cur.execute('SELECT task_id, title FROM tasks WHERE task_id = (?);', (task_id,))
-    task, title = cur.fetchone()
+    query = 'SELECT task_id, title FROM tasks WHERE task_id = (?);'
+    task, title = cur.execute(query, (task_id,)).fetchone()
     if not task:
         return '%s is not found.'
 
