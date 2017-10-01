@@ -9,19 +9,9 @@ import sys
 import tempfile
 
 from command import Command
+from model import ToDo, TABLES
 
 DATABASE = '_todo.sqlite3'
-TABLES = """
-create table tasks (
-    task_id     INTEGER PRIMARY KEY AUTOINCREMENT,
-    title       TEXT,
-    description TEXT,
-    create_at   TIMESTAMP,
-    update_at   TIMESTAMP,
-    done        INTEGER
-)
-"""
-
 EDITOR_APP = ''
 if os.path.exists('config'):
     config = configparser.ConfigParser()
@@ -50,6 +40,7 @@ class Task:
 
 con = sqlite3.connect(DATABASE)
 cur = con.cursor()
+todo = ToDo(cur)
 app = Command()
 app.welcome_message = 'Welcome to Japari Park!'
 tempfiles = dict()
@@ -57,15 +48,13 @@ tempfiles = dict()
 
 @app.command('list', help='show tasks (title only)')
 def list():
-    query = 'SELECT task_id, title FROM tasks WHERE done = 0;'
-    tasks = cur.execute(query).fetchall()
+    tasks = todo.getall()
     return 'task id\ttitle\n' + \
-           '\n'.join(['%d\t%s' % (idx, title) for idx, title in tasks])
+           '\n'.join(['%d\t%s' % (task.task_id, task.title) for task in tasks])
 
 @app.command('show', help='show tasks (all info)')
 def show():
-    query = 'SELECT * FROM tasks WHERE done = 0;'
-    tasks = [Task(*task) for task in cur.execute(query).fetchall()]
+    tasks = todo.getall()
     template = '''================================================================================
 Title: %s [Task ID:%d]
 Create: %s\tLast Update: %s
@@ -81,7 +70,6 @@ Create: %s\tLast Update: %s
 
 @app.command('add', args=['title'], help='add task')
 def add(title):
-    now = datetime.datetime.now()
     with tempfile.NamedTemporaryFile(suffix='.md', delete=False) as tf:
         tf.write(('# %s\n' % title).encode())
         tf_path = tf.name
@@ -92,56 +80,43 @@ def add(title):
             title = description.split('\n')[0].split(' ')[1]
     else:
         description = ''
-    query = 'INSERT INTO tasks(title, description, create_at, update_at, done) VALUES (?, ?, ?, ?, ?);'
-    cur.execute(query, (title, description, now, now, False))
-    row_id = cur.execute('select last_insert_rowid();').fetchone()[0]
+    row_id = todo.add(title, description)
     tempfiles[row_id] = tf_path # tempfileをキャッシュ
     return 'add: %s' % title
 
 @app.command('edit', args=['task_id'], help='edit task')
 def edit(task_id):
-    try:
-        task_id = int(task_id)
-    except ValueError:
-        return '%s is not found.' % task_id
-    query = 'SELECT task_id, title, description FROM tasks WHERE task_id = (?);'
-    task = cur.execute(query, (task_id,)).fetchone()
+    task = todo.get(task_id)
     if not task:
         return '%s is not found.'
 
-    if task[0] in tempfiles: # task_id in tempfiles
-        tempfile_path = tempfiles[task[0]]
+    if task.task_id in tempfiles:
+        tempfile_path = tempfiles[task.task_id]
     else:
         with tempfile.NamedTemporaryFile(suffix='.md', delete=False) as tf:
-            if task[2]: # description
-                tf.write(task[2].encode())
+            if task.description:
+                tf.write(task.description.encode())
             else:
-                tf.write(('# %s\n' % task[1]).encode()) # title
+                tf.write(('# %s\n' % task.title).encode())
             tempfile_path = tf.name
     cp = subprocess.run([EDITOR_APP, tempfile_path])
     if cp.returncode == 0:
         with open(tempfile_path) as tf:
             description = tf.read()
             title = description.split('\n')[0].split(' ')[1]
-        query = 'UPDATE tasks SET title=?, description=?, update_at=? WHERE task_id=?;'
-        cur.execute(query, (title, description, datetime.datetime.now(), task[0]))
-        tempfiles[task[0]] = tempfile_path
+        todo.update(task.task_id, title, description)
+        tempfiles[task.task_id] = tempfile_path
         return 'update: %s' % title
     return 'update failed'
 
 @app.command('done', args=['task_id'])
 def done(task_id):
-    try:
-        task_id = int(task_id)
-    except ValueError:
-        return '%s is not found.' % task_id
-    query = 'SELECT task_id, title FROM tasks WHERE task_id = (?);'
-    task, title = cur.execute(query, (task_id,)).fetchone()
+    task = todo.get(task_id)
     if not task:
         return '%s is not found.'
 
-    cur.execute('UPDATE tasks SET done=? WHERE task_id=?;', (True, task_id))
-    return 'done: %s' % title
+    todo.done(task_id)
+    return 'done: %s' % task.title
 
 @app.set_clean_up()
 def clean_up():
