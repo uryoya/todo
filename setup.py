@@ -5,6 +5,8 @@ from todo.model import DATABASE, TABLES
 
 
 if not DATABASE.exists():
+    if not DATABASE.parent.exists():
+        DATABASE.parent.mkdir()
     con = sqlite3.connect(str(DATABASE))
     cur = con.cursor()
     cur.execute(TABLES)
