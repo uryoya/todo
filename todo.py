@@ -8,12 +8,12 @@ import subprocess
 import sys
 import tempfile
 
+from pathlib import Path
 from command import Command
-from model import ToDo, TABLES
+from model import ToDo, DATABASE, TABLES
 
-DATABASE = '_todo.sqlite3'
 EDITOR_APP = ''
-if os.path.exists('config'):
+if (Path().home()/'.config'/'todo'/'config').exists():
     config = configparser.ConfigParser()
     config.read('config')
     EDITOR_APP = config['default']['editor']
@@ -38,7 +38,7 @@ class Task:
         self.done = done
 
 
-con = sqlite3.connect(DATABASE)
+con = sqlite3.connect(str(DATABASE))
 cur = con.cursor()
 todo = ToDo(cur)
 app = Command()
@@ -129,7 +129,7 @@ def clean_up():
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'table':
-        con = sqlite3.connect(DATABASE)
+        con = sqlite3.connect(str(DATABASE))
         cur = con.cursor()
         cur.execute(TABLES)
         con.commit()

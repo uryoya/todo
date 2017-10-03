@@ -2,7 +2,10 @@
 import sqlite3
 import datetime
 
+from pathlib import Path
 
+
+DATABASE = Path().home()/'.config'/'todo'/'_todo.sqlite3'
 TABLES = """
 create table tasks (
     task_id     INTEGER PRIMARY KEY AUTOINCREMENT,
