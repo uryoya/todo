@@ -9,8 +9,8 @@ import sys
 import tempfile
 
 from pathlib import Path
-from command import Command
-from model import ToDo, DATABASE, TABLES
+from todo.command import Command
+from todo.model import ToDo, DATABASE, TABLES
 
 EDITOR_APP = ''
 if (Path().home()/'.config'/'todo'/'config').exists():
@@ -125,6 +125,10 @@ def clean_up():
 
     for path in tempfiles.values():
         os.unlink(path)
+
+
+def main():
+    app.run()
 
 
 if __name__ == '__main__':

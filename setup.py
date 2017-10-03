@@ -1,7 +1,7 @@
 import sqlite3
 
 from setuptools import setup
-from model import DATABASE, TABLES
+from todo.model import DATABASE, TABLES
 
 
 if not DATABASE.exists():
@@ -18,9 +18,10 @@ setup(
     author='URANO Ryoya',
     author_email='urano.works.mail@gmail.com',
     description='ToDo application for CLI.',
+    packages=['todo', 'todo.command', 'todo.model'],
     entry_points='''
         [console_scripts]
-        todo=todo:app.run
+        todo=todo.todo:app.run
     '''
 )
 
