@@ -23,7 +23,7 @@ setup(
     packages=['todo', 'todo.command', 'todo.model'],
     entry_points='''
         [console_scripts]
-        todo=todo.todo:app.run
+        todo=todo.todo:main
     '''
 )
 
