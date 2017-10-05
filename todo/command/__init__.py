@@ -68,12 +68,15 @@ class Command():
             command, *args = input('> ').split(' ')
             try:
                 func, options = self.commands[command]
-                if options:
+                if 'args' not in options:
+                    result = func()
+                elif len(options['args']) <= len(args):
                     # @app.command('command', args=[]) のargsで決めた引数だけ取り込む
                     # もう少し作り込めそうだけどとりあえずこれだけ
-                    result = func(*args[:len(options)])
+                    result = func(*args[:len(options['args'])])
                 else:
-                    result = func()
+                    args += [''] * (len(options['args']) - len(args))
+                    result = func(*args)
                 print(result)
             except KeyError:
                 if command == 'quit':
