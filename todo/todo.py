@@ -3,6 +3,7 @@ import configparser
 import datetime
 import os
 import platform
+import re
 import sqlite3
 import subprocess
 import sys
@@ -36,6 +37,13 @@ class Task:
         self.create_at = create_at
         self.update_at = update_at
         self.done = done
+
+
+def get_title(s):
+    m = re.match(r'# (?P<title>.+)', s)
+    if not m:
+        return ''
+    return m.group('title')
 
 
 con = sqlite3.connect(str(DATABASE))
@@ -77,7 +85,7 @@ def add(title):
     if cp.returncode == 0:
         with open(tf_path) as f:
             description = f.read()
-            title = description.split('\n')[0].split(' ')[1]
+            title = get_title(description)
     else:
         description = ''
     row_id = todo.add(title, description)
@@ -103,7 +111,7 @@ def edit(task_id):
     if cp.returncode == 0:
         with open(tempfile_path) as tf:
             description = tf.read()
-            title = description.split('\n')[0].split(' ')[1]
+            title = get_title(description)
         todo.update(task.task_id, title, description)
         tempfiles[task.task_id] = tempfile_path
         return 'update: %s' % title
