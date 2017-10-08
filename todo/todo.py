@@ -10,8 +10,9 @@ import sys
 import tempfile
 
 from pathlib import Path
-from todo.command import Command
-from todo.model import ToDo, DATABASE, TABLES
+# from todo.command import Command
+from calcium import Calcium
+from . model import ToDo, DATABASE, TABLES
 
 EDITOR_APP = ''
 if (Path().home()/'.config'/'todo'/'config').exists():
@@ -49,7 +50,7 @@ def get_title(s):
 con = sqlite3.connect(str(DATABASE))
 cur = con.cursor()
 todo = ToDo(cur)
-app = Command()
+app = Calcium()
 app.welcome_message = 'Welcome to Japari Park!'
 tempfiles = dict()
 
