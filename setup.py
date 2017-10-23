@@ -20,8 +20,8 @@ setup(
     author='URANO Ryoya',
     author_email='urano.works.mail@gmail.com',
     description='ToDo application for CLI.',
-    dependency_links=[
-        'git+https://github.com/uryoya/calcium',
+    install_requirs=[
+        'calcium',
     ],
     packages=['todo'],
     entry_points='''
