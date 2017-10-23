@@ -23,7 +23,7 @@ setup(
     dependency_links=[
         'git+https://github.com/uryoya/calcium',
     ],
-    packages=['todo', 'todo.command', 'todo.model'],
+    packages=['todo'],
     entry_points='''
         [console_scripts]
         todo=todo.todo:main
